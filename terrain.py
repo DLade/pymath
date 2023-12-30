@@ -3,6 +3,7 @@ import time
 
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter
+from PIL.ImagePalette import ImagePalette
 from matplotlib import colormaps as cmaps
 
 WIDTH = 2 ** 10
@@ -75,14 +76,18 @@ def make_terrain(width, height, roughness_factor):
     return data
 
 
+def get_palette(colormap_name):
+    # Create a Pillow palette directly from the flattened list comprehension
+    return ImagePalette(mode="RGB", palette=[
+        int(c * 255) for i in range(256) for c in cmaps.get_cmap(colormap_name)(i)[:3]
+    ])
+
+
 def main():
-    source_image = Image.new(mode='RGBA', size=(WIDTH, HEIGHT))  # create the Image of size 1 pixel
+    source_image = Image.new(mode='P', size=(WIDTH, HEIGHT))  # create the Image of size 1 pixel
     draw_area = ImageDraw.Draw(source_image)
 
-    # ImageDraw needs tuples
-    colors = tuple(map(tuple,
-                       cmaps.get_cmap('gist_earth')(np.linspace(0, 1, 256), bytes=True)
-                       ))
+    source_image.putpalette(get_palette('gist_earth'))
 
     factor = 2 ** 1
     roughness = 0.7  # Roughness delta, 0 < ds <= 1 : smaller ds => smoother results
@@ -96,7 +101,7 @@ def main():
     for y in range(0, HEIGHT // factor):
         for x in range(0, WIDTH // factor):
             level = clamp(terrain[y, x], BOTTOM_LEVEL, TOP_LEVEL)
-            draw_area.rectangle(xy=(x * factor, y * factor, (x + 1) * factor, (y + 1) * factor), fill=tuple(colors[int(level * 255)]))
+            draw_area.rectangle(xy=(x * factor, y * factor, (x + 1) * factor, (y + 1) * factor), fill=int(level * 255))
 
     time2 = time.thread_time_ns()
 
@@ -106,8 +111,9 @@ def main():
 
     print(f"{int(time_av1 / 1000000)} + {int(time_av2 / 1000000)} = {int((time_av1 + time_av2) / 1000000)}")
 
-    source_image.save('terrain_1.png')
-    source_image.filter(ImageFilter.GaussianBlur(2)).save('terrain_1_blurred.png')
+    image_rgb = source_image.convert('RGB')
+    image_rgb.save('terrain_1.png')
+    image_rgb.filter(ImageFilter.GaussianBlur(2)).save('terrain_1_blurred.png')
 
 
 if __name__ == '__main__':
