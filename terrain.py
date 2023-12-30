@@ -4,6 +4,7 @@ import time
 from PIL import Image, ImageDraw, ImageFilter
 from PIL.ImagePalette import ImagePalette
 from matplotlib import colormaps as cmaps
+from matplotlib import pyplot as plt
 
 WIDTH = 2 ** 10
 HEIGHT = 2 ** 10
@@ -111,8 +112,10 @@ def main():
     print(f"{int(time_av1 / 1000000)} + {int(time_av2 / 1000000)} = {int((time_av1 + time_av2) / 1000000)}")
 
     image_rgb = source_image.convert('RGB')
-    image_rgb.save('terrain_1.png')
-    image_rgb.filter(ImageFilter.GaussianBlur(2)).save('terrain_1_blurred.png')
+    result_image = image_rgb.filter(ImageFilter.GaussianBlur(2))
+
+    plt.imshow(result_image)
+    plt.show()
 
 
 if __name__ == '__main__':
