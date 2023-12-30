@@ -1,7 +1,6 @@
 import random
 import time
 
-import numpy as np
 from PIL import Image, ImageDraw, ImageFilter
 from PIL.ImagePalette import ImagePalette
 from matplotlib import colormaps as cmaps
@@ -24,12 +23,12 @@ def clamp(value, min_value, max_value):
 
 
 def average(data, x, y, center_x, center_y, offsets):
-    data_width = data.shape[1] - 1
-    data_height = data.shape[0] - 1
+    data_width = len(data[0]) - 1
+    data_height = len(data) - 1
 
     res = 0
     for offset_y, offset_x in offsets:
-        res += data[clamp(y + offset_y * center_y, 0, data_height), clamp(x + offset_x * center_x, 0, data_width)]
+        res += data[clamp(y + offset_y * center_y, 0, data_height)][clamp(x + offset_x * center_x, 0, data_width)]
     return res / 4.0
 
 
@@ -37,8 +36,8 @@ def single_diamond_square_step(data, cell_width, cell_height, roughness):
     # w is the dist from one "new" cell to the next
     # v is the dist from a "new" cell to the nbs to average over
 
-    data_width = data.shape[1]
-    data_height = data.shape[0]
+    data_width = len(data[0])
+    data_height = len(data)
     center_x = cell_width // 2
     center_y = cell_height // 2
 
@@ -54,16 +53,16 @@ def single_diamond_square_step(data, cell_width, cell_height, roughness):
 
     for y in range(center_y, data_height, cell_height):
         for x in range(center_x, data_width, cell_width):
-            data[y, x] = update_cell(x, y, diamond)
-            data[y, x - center_x] = update_cell(x - center_x, y, square)
-            data[y - center_y, x] = update_cell(x, y - center_y, square)
+            data[y][x] = update_cell(x, y, diamond)
+            data[y][x - center_x] = update_cell(x - center_x, y, square)
+            data[y - center_y][x] = update_cell(x, y - center_y, square)
 
 
 def make_terrain(width, height, roughness_factor):
     # Returns an n-by-n landscape using the Diamond-Square algorithm, using
     # roughness delta ds (0..1). bdry is an averaging fct, including the
     # bdry conditions: fixed() or periodic(). n must be 2**k, k integer.
-    data = np.zeros(width * height).reshape(height, width)
+    data = [[0 for _ in range(width)] for _ in range(height)]
 
     roughness = 1.0
     while width > 1 or height > 1:
@@ -100,7 +99,7 @@ def main():
     time1 = time.thread_time_ns()
     for y in range(0, HEIGHT // factor):
         for x in range(0, WIDTH // factor):
-            level = clamp(terrain[y, x], BOTTOM_LEVEL, TOP_LEVEL)
+            level = clamp(terrain[y][x], BOTTOM_LEVEL, TOP_LEVEL)
             draw_area.rectangle(xy=(x * factor, y * factor, (x + 1) * factor, (y + 1) * factor), fill=int(level * 255))
 
     time2 = time.thread_time_ns()
