@@ -7,7 +7,7 @@ from matplotlib import pyplot as plt
 
 iterations = 200
 WIDTH, HEIGHT = 800, 800
-xmin, xmax, ymin, ymax = -1.5, 1.5, -1.5, 1.5
+xmin, xmax, ymin, ymax = -2.0, 1.0, -sqrt(2.0), sqrt(2.0)
 
 
 def get_palette(colormap_name):
