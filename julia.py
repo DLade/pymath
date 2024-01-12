@@ -1,5 +1,3 @@
-from math import sqrt
-
 from PIL import Image, ImageDraw
 from PIL.ImagePalette import ImagePalette
 from matplotlib import colormaps as cmaps
@@ -7,7 +5,7 @@ from matplotlib import pyplot as plt
 
 iterations = 200
 WIDTH, HEIGHT = 800, 800
-xmin, xmax, ymin, ymax = -2.0, 1.0, -sqrt(2.0), sqrt(2.0)
+xmin, xmax, ymin, ymax = -1.5, 1.5, -1.5, 1.5
 
 
 def get_palette(colormap_name):
@@ -29,8 +27,8 @@ def main():
         for x in range(WIDTH):
             scale_x = xmin + x * (xmax - xmin) / WIDTH
 
-            c = scale_x + scale_y * 1j
-            z = 0j
+            c = -0.7 + 0.27015j
+            z = scale_x + scale_y * 1j
             for i in range(iterations):
                 z = z ** 2 + c
 
