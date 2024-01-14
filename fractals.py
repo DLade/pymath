@@ -4,7 +4,13 @@ from matplotlib import colormaps as cmaps
 from matplotlib import pyplot as plt
 
 
-def get_palette(colormap_name):
+def get_palette(colormap_name: str) -> ImagePalette:
+    """
+    Converts a colormap to a palette.
+
+    :param colormap_name: https://matplotlib.org/stable/gallery/color/colormap_reference.html
+    :return: palette
+    """
     # Create a Pillow palette directly from the flattened list comprehension
     return ImagePalette(mode="RGB", palette=[
         int(c * 255) for i in range(256) for c in cmaps.get_cmap(colormap_name)(i)[:3]
@@ -51,11 +57,14 @@ def julia(draw_area, x_min, x_max, y_min, y_max, num_iterations, c0 = 0j):
 
 if __name__ == '__main__':
     source_image = Image.new(mode='P', size=(1000, 800))  # create the Image of size 1 pixel
-    source_image.putpalette(get_palette('grey'))
+    source_image.putpalette(get_palette('Blues_r'))
 
-    mandelbrot(ImageDraw.Draw(source_image), -2.0, 1.0, -1.5, 1.5, 200)
-    # julia(ImageDraw.Draw(source_image), -1.5, 1.5, -1.5, 1.5, 200, -0.7 + 0.27015j)
+    # mandelbrot(ImageDraw.Draw(source_image), -2.0, 1.0, -1.5, 1.5, 200)
+    julia(ImageDraw.Draw(source_image), -1.6, 1.6, -1.0, 1.0, 400, -0.7 + 0.27015j)
 
     # Visualisierung
-    plt.imshow(source_image.convert('RGB'))
+    rgb_image = source_image.convert('RGB')
+    rgb_image.save('fractal.png')
+
+    plt.imshow(rgb_image)
     plt.show()
